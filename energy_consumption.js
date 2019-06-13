@@ -81,19 +81,19 @@ function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TS
 
   //return value
   let rv={
-    'SAE':                    {value:SAE,                    unit:"kg_O2/kWh", descr:"kg O2 that can be aerated with 1 kWh of energy"},
-    'aeration_power':         {value:aeration_power,         unit:"kW",        descr:"Power needed for aeration (=OTRf/SAE)"},
-    'mixing_power':           {value:mixing_power,           unit:"kW",        descr:"Power needed for anoxic mixing"},
-    'pumping_power_influent': {value:pumping_power_influent, unit:"kW",        descr:"Power needed for pumping influent"},
-    'pumping_power_external': {value:pumping_power_external, unit:"kW",        descr:"Power needed for pumping (external recirculation)"},
-    'pumping_power_internal': {value:pumping_power_internal, unit:"kW",        descr:"Power needed for pumping (internal recirculation)"},
-    'pumping_power_wastage':  {value:pumping_power_wastage,  unit:"kW",        descr:"Power needed for pumping (wastage recirculation)"},
-    'pumping_power':          {value:pumping_power,          unit:"kW",        descr:"Power needed for pumping (ext+int+was)"},
-    'dewatering_power':       {value:dewatering_power,       unit:"kW",        descr:"Power needed for dewatering"},
-    'other_power':            {value:other_power,            unit:"kW",        descr:"Power needed for 'other' (20% of total)"},
-    'total_power':            {value:total_power,            unit:"kW",        descr:"Total power needed"},
-    'total_daily_energy':     {value:total_power*24,         unit:"kWh/d",     descr:"Total daily energy needed"},
-    'total_energy_per_m3':    {value:total_power*24/Q||0,    unit:"kWh/m3",    descr:"Total energy needed per m3"},
+    'SAE':                    {value:SAE,                    unit:"kgO2/kWh", descr:"kg O2 dosed with 1 kWh of energy (constant value)"},
+    'aeration_power':         {value:aeration_power,         unit:"kW",       descr:"Power needed for aeration (=OTRf/SAE)"},
+    'mixing_power':           {value:mixing_power,           unit:"kW",       descr:"Power needed for anoxic mixing"},
+    'pumping_power_influent': {value:pumping_power_influent, unit:"kW",       descr:"Power needed for pumping influent"},
+    'pumping_power_external': {value:pumping_power_external, unit:"kW",       descr:"Power needed for pumping (external recirculation)"},
+    'pumping_power_internal': {value:pumping_power_internal, unit:"kW",       descr:"Power needed for pumping (internal recirculation)"},
+    'pumping_power_wastage':  {value:pumping_power_wastage,  unit:"kW",       descr:"Power needed for pumping (wastage recirculation)"},
+    'pumping_power':          {value:pumping_power,          unit:"kW",       descr:"Power needed for pumping (ext+int+was)"},
+    'dewatering_power':       {value:dewatering_power,       unit:"kW",       descr:"Power needed for dewatering"},
+    'other_power':            {value:other_power,            unit:"kW",       descr:"Power needed for 'other' (20% of total)"},
+    'total_power':            {value:total_power,            unit:"kW",       descr:"Total power needed (aer+mix+pum+dew+other)"},
+    'total_daily_energy':     {value:total_power*24,         unit:"kWh/d",    descr:"Total daily energy needed"},
+    'total_energy_per_m3':    {value:total_power*24/Q||0,    unit:"kWh/m3",   descr:"Total energy needed per m3"},
   };
   return rv;
 }
@@ -107,7 +107,7 @@ function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TS
   );
   /*
     test result
-    { 
+    {
       SAE:                    {value: 4,                   unit:'kg_O2/kWh', descr:'kg O2 that can be aerated with 1 kWh of energy'},
       aeration_power:         {value: 45,                  unit:'kW',        descr:'Power needed for aeration (=OTRf/SAE)'},
       mixing_power:           {value: 5,                   unit:'kW',        descr:'Power needed for anoxic mixing'},
