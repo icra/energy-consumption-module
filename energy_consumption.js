@@ -1,5 +1,5 @@
 /*ENERGY CONSUMPTION module*/
-//taken from ecoinvent project
+//using equations from ecoinvent project
 
 function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox){
   /*
@@ -95,28 +95,32 @@ function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TS
     'total_daily_energy':     {value:total_power*24,         unit:"kWh/d",     descr:"Total daily energy needed"},
     'total_energy_per_m3':    {value:total_power*24/Q||0,    unit:"kWh/m3",    descr:"Total energy needed per m3"},
   };
-  console.log(rv);
   return rv;
 }
 
-//test with example inputs
-//----------------(Q,     Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox)
-energy_consumption(22700, 180,  0.6, 180,                     5,  3,    1800,         10, true,    1000);
-/*
-  test result
-  { 
-    SAE:                    {value: 4,                   unit:'kg_O2/kWh', descr:'kg O2 that can be aerated with 1 kWh of energy'},
-    aeration_power:         {value: 45,                  unit:'kW',        descr:'Power needed for aeration (=OTRf/SAE)'},
-    mixing_power:           {value: 5,                   unit:'kW',        descr:'Power needed for anoxic mixing'},
-    pumping_power_influent: {value: 25.773958333333333,  unit:'kW',        descr:'Power needed for pumping influent'},
-    pumping_power_external: {value: 4.54,                unit:'kW',        descr:'Power needed for pumping (external recirculation)'},
-    pumping_power_internal: {value: 11.35,               unit:'kW',        descr:'Power needed for pumping (internal recirculation)'},
-    pumping_power_wastage:  {value: 0.375,               unit:'kW',        descr:'Power needed for pumping (wastage recirculation)'},
-    pumping_power:          {value: 42.03895833333333,   unit:'kW',        descr:'Power needed for pumping (ext+int+was)'},
-    dewatering_power:       {value: 1.5,                 unit:'kW',        descr:'Power needed for dewatering'},
-    other_power:            {value: 25.802083333333332,  unit:'kW',        descr:'Power needed for "other" (20% of total)'},
-    total_power:            {value: 119.34104166666667,  unit:'kW',        descr:'Total power needed'},
-    total_daily_energy:     {value: 2864.185,            unit:'kWh/d',     descr:'Total daily energy needed'},
-    total_energy_per_m3:    {value: 0.12617555066079295, unit:'kWh/m3',    descr:'Total energy needed per m3'}
-  }
-*/
+//test
+(function(){
+  return;
+  console.log(
+    //syntax---------f(Q      Qwas RAS  OTRf Anoxic_mixing_energy IR P_X_TSS influent_H is_PST V_nox)
+    energy_consumption(22700, 180, 0.6, 180, 5,                   3, 1800,   10,        true,  1000)
+  );
+  /*
+    test result
+    { 
+      SAE:                    {value: 4,                   unit:'kg_O2/kWh', descr:'kg O2 that can be aerated with 1 kWh of energy'},
+      aeration_power:         {value: 45,                  unit:'kW',        descr:'Power needed for aeration (=OTRf/SAE)'},
+      mixing_power:           {value: 5,                   unit:'kW',        descr:'Power needed for anoxic mixing'},
+      pumping_power_influent: {value: 25.773958333333333,  unit:'kW',        descr:'Power needed for pumping influent'},
+      pumping_power_external: {value: 4.54,                unit:'kW',        descr:'Power needed for pumping (external recirculation)'},
+      pumping_power_internal: {value: 11.35,               unit:'kW',        descr:'Power needed for pumping (internal recirculation)'},
+      pumping_power_wastage:  {value: 0.375,               unit:'kW',        descr:'Power needed for pumping (wastage recirculation)'},
+      pumping_power:          {value: 42.03895833333333,   unit:'kW',        descr:'Power needed for pumping (ext+int+was)'},
+      dewatering_power:       {value: 1.5,                 unit:'kW',        descr:'Power needed for dewatering'},
+      other_power:            {value: 25.802083333333332,  unit:'kW',        descr:'Power needed for "other" (20% of total)'},
+      total_power:            {value: 119.34104166666667,  unit:'kW',        descr:'Total power needed'},
+      total_daily_energy:     {value: 2864.185,            unit:'kWh/d',     descr:'Total daily energy needed'},
+      total_energy_per_m3:    {value: 0.12617555066079295, unit:'kWh/m3',    descr:'Total energy needed per m3'}
+    }
+  */
+})();

@@ -1,0 +1,129 @@
+<!doctype html>
+<html><head>
+  <meta charset=utf8>
+  <title>Energy consumption module</title>
+  <style>
+    main > div {
+      padding:10px 0;
+      border-bottom:1px solid #ccc;
+    }
+    hr{
+      border:none;border-top:1px solid #ccc;
+    }
+    .unit, .descr {
+      font-size:smaller;
+    }
+    input[type=number]{
+      text-align:right;
+    }
+    table{
+      border-collapse:collapse;
+    }
+  </style>
+</head><body>
+
+<!--titol-->
+<h1>Interfície pel mòdul "consum energia" (standalone)</h1>
+<hr><ul>
+  <li>Instruccions: canviar inputs i apretar Enter per veure els outputs calculats.
+  <li><a href="https://github.com/icra/energy-consumption-module/blob/master/energy_consumption.js">veure equacions</a>
+  </ul>
+<hr>
+
+<!--main-->
+<main>
+  <div><b>1. Inputs</b><table id=inputs border=1></table></div>
+  <div><b>2. Outputs</b><table id=outputs border=1></table></div>
+</main>
+<!--end--></html>
+
+<!--frontend utils-->
+<script>
+  //number formatting
+  let nf=[
+    new Intl.NumberFormat('en-EN', {maximumFractionDigits:0}),
+    new Intl.NumberFormat('en-EN', {maximumFractionDigits:1}),
+    new Intl.NumberFormat('en-EN', {maximumFractionDigits:2}),
+    new Intl.NumberFormat('en-EN', {maximumFractionDigits:3}),
+    new Intl.NumberFormat('en-EN', {maximumFractionDigits:4}),
+    new Intl.NumberFormat('en-EN', {maximumFractionDigits:5}),
+  ];
+  function format(number,digits){
+    digits=digits||0;
+    let abs_number = Math.abs(number);
+    if(abs_number< 100   ) digits=1;
+    if(abs_number<  10   ) digits=2;
+    if(abs_number<   1   ) digits=3;
+    if(abs_number<   0.1 ) digits=4;
+    if(abs_number<   0.01) digits=5;
+    return nf[digits].format(number);
+  }
+</script>
+
+<!--load backend-->
+<script src="../energy_consumption.js"></script>
+
+<!--frontend-->
+<script>
+  //populate inputs table
+  //(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox)
+  let inputs = {
+    Q                    :{value:22700, unit:"m3/d",       descr:"Flowrate"},
+    Qwas                 :{value:  180, unit:"m3/d",       descr:"Wastage flowrate"},
+    RAS                  :{value:  0.6, unit:"ø",          descr:"Return sludge recycle ratio"},
+    OTRf                 :{value:  170, unit:"kgO2/h",     descr:"O2 demand"},
+    Anoxic_mixing_energy :{value:    5, unit:"kW/1000 m3", descr:"Mixing energy for anoxic reactor (denitrification)"},
+    IR                   :{value:    3, unit:"ø",          descr:"Internal recirculation ratio"},
+    P_X_TSS              :{value: 1800, unit:"kg/d",       descr:"Total solids production per day"},
+    influent_H           :{value:   10, unit:"m",          descr:"Influent pumping water lift height and friction head in m"},
+    is_PST               :{value:true,  unit:"boolean",    descr:"Do you have primary settler? (1:true, 0:false)"},
+    V_nox                :{value:1000,  unit:"m3",         descr:"Anoxic volume (calculated through numeric loop)"},
+  };
+
+  //DOM
+  let table_inputs             = document.querySelector('#inputs');
+  let table_outputs            = document.querySelector('#outputs');
+
+  function populate(taula,objecte){
+    Object.entries(objecte).forEach(([key,obj])=>{
+      let newRow = taula.insertRow(-1);
+      newRow.insertCell(-1).innerHTML=key;
+
+      //input element
+      let newCell = newRow.insertCell(-1);
+      let input = document.createElement('input');
+      newCell.appendChild(input);
+      input.type='number';
+      input.value=parseFloat(obj.value) || 0; //sets booleans to false
+      input.id=key;
+      input.addEventListener('keypress',function(ev){if(ev.which==13){run()}});
+
+      //unit and description
+      newRow.insertCell(-1).innerHTML=`<span class=unit>${obj.unit}</span>`;
+      newRow.insertCell(-1).innerHTML=`<span class=descr>${obj.descr}</span>`;
+    });
+  }
+  populate(table_inputs, inputs);
+
+  //run
+  function run(){
+    //syntax energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox)
+    let resultats = energy_consumption(
+      ...Object.keys(inputs).map(key=>parseFloat(document.querySelector(`#inputs #${key}`).value))
+    );
+
+    table_outputs.innerHTML="";
+
+    function print_resultats(taula, objecte){
+      Object.entries(objecte).forEach(([key,obj])=>{
+        let newRow = taula.insertRow(-1);
+        newRow.insertCell(-1).innerHTML=key;
+        newRow.insertCell(-1).innerHTML=format(obj.value);
+        newRow.insertCell(-1).innerHTML=`<span class=unit>${obj.unit}</span>`;
+        newRow.insertCell(-1).innerHTML=`<span class=descr>${obj.descr}</span>`;
+      });
+    }
+    print_resultats(table_outputs, resultats);
+  }
+  run();
+</script>
