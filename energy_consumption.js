@@ -98,6 +98,9 @@ function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TS
   return rv;
 }
 
+//export
+try{module.exports=energy_consumption}catch(e){}
+
 //test
 (function(){
   return;
