@@ -1,5 +1,5 @@
 /*ENERGY CONSUMPTION module*/
-//using equations from ecoinvent project
+//function from ecoinvent project
 
 function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox){
   /*
