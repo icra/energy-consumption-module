@@ -1,5 +1,4 @@
-<!doctype html>
-<html><head>
+<!doctype html><html><head>
   <meta charset=utf8>
   <title>Energy consumption module</title>
   <style>
@@ -41,12 +40,12 @@
 <script>
   //number formatting
   let nf=[
-    new Intl.NumberFormat('en-EN', {maximumFractionDigits:0}),
-    new Intl.NumberFormat('en-EN', {maximumFractionDigits:1}),
-    new Intl.NumberFormat('en-EN', {maximumFractionDigits:2}),
-    new Intl.NumberFormat('en-EN', {maximumFractionDigits:3}),
-    new Intl.NumberFormat('en-EN', {maximumFractionDigits:4}),
-    new Intl.NumberFormat('en-EN', {maximumFractionDigits:5}),
+    new Intl.NumberFormat('en-EN',{maximumFractionDigits:0}),
+    new Intl.NumberFormat('en-EN',{maximumFractionDigits:1}),
+    new Intl.NumberFormat('en-EN',{maximumFractionDigits:2}),
+    new Intl.NumberFormat('en-EN',{maximumFractionDigits:3}),
+    new Intl.NumberFormat('en-EN',{maximumFractionDigits:4}),
+    new Intl.NumberFormat('en-EN',{maximumFractionDigits:5}),
   ];
   function format(number,digits){
     digits=digits||0;
@@ -78,11 +77,17 @@
     influent_H           :{value:   10, unit:"m",          descr:"Influent pumping water lift height and friction head in m"},
     is_PST               :{value:true,  unit:"boolean",    descr:"Do you have primary settler? (1:true, 0:false)"},
     V_nox                :{value:1000,  unit:"m3",         descr:"Anoxic volume (calculated through numeric loop)"},
+    SAE                  :{value:    4, unit:"kgO2/kWh",   descr:"kg of O2 dosed per kWh of energy consumed"},
+    PE_Qinf              :{value:0.100, unit:"kWh/m3",     descr:"influent factor"},
+    PE_Qr                :{value:0.008, unit:"kWh/m3",     descr:"external recirculation factor"},
+    PE_Qint              :{value:0.004, unit:"kWh/m3",     descr:"internal recirculation (anoxic, denitri) factor"},
+    PE_Qw                :{value:0.050, unit:"kWh/m3",     descr:"wastage factor"},
+    dewatering_factor    :{value:   20, unit:"kWh/tDM ",   descr:"dewatering factor per tone dry matter"},
   };
 
   //DOM
-  let table_inputs             = document.querySelector('#inputs');
-  let table_outputs            = document.querySelector('#outputs');
+  let table_inputs  = document.querySelector('#inputs');
+  let table_outputs = document.querySelector('#outputs');
 
   function populate(taula,objecte){
     Object.entries(objecte).forEach(([key,obj])=>{
@@ -107,7 +112,6 @@
 
   //run
   function run(){
-    //syntax energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox)
     let resultats = energy_consumption(
       ...Object.keys(inputs).map(key=>parseFloat(document.querySelector(`#inputs #${key}`).value))
     );

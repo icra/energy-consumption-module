@@ -1,7 +1,9 @@
 /*ENERGY CONSUMPTION module*/
 //function from ecoinvent project
 
-function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox){
+function energy_consumption(
+  Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox,
+  SAE, PE_Qinf, PE_Qr, PE_Qint, PE_Qw, dewatering_factor){
   /*
     input symbol         | unit       | example value | description
     ---------------------|------------|---------------|----------------------------------------------------------
@@ -15,24 +17,30 @@ function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TS
     influent_H           | m          |            10 | Influent pumping water lift height and friction head in m
     is_PST               | boolean    |          true | Do you have primary settler?
     V_nox                | m3         |          1000 | Anoxic volume (calculated through numeric loop)
+    SAE                  | kgO2/kWh   |             4 | kg of O2 dosed per kWh of energy consumed
+    PE_Qinf              | kWh/m3     |         0.100 | influent factor
+    PE_Qr                | kWh/m3     |         0.008 | external recirculation factor
+    PE_Qint              | kWh/m3     |         0.004 | internal recirculation (anoxic, denitri) factor
+    PE_Qw                | kWh/m3     |         0.050 | wastage factor
+    dewatering_factor    | kWh/tDM    |            20 | dewatering factor per tone dry matter
   */
 
   //1. AERATION power
-  const SAE          = 4;            //kgO2/kWh (taken from Oliver Schraa's aeration book)
   let aeration_power = OTRf/SAE ||0; //kW
 
   //2. MIXING power (anoxic, denitrification)
   let mixing_power = V_nox*Anoxic_mixing_energy/1000; //kW | Anoxic zone mixing power needed
 
   //3. PUMPING power
-  const PE_Qr   = 0.008; //kWh/m3 -- external recirculation factor
-  const PE_Qint = 0.004; //kWh/m3 -- internal recirculation (anoxic, denitri) factor
-  const PE_Qw   = 0.050; //kWh/m3 -- wastage factor
   let Pumping = {
     external: Q*RAS*PE_Qr,  //kWh/d
     internal: Q*IR*PE_Qint, //kWh/d
     wastage : Qwas*PE_Qw,   //kWh/d
-    influent:function(){
+    influent: Q*PE_Qinf,    //kWh/d
+
+    //old formula TODO
+    influent_old_formula:function(){
+      return 0;
       const rho = 1000; //kg/m3 (density)
       const g   = 9.81; //m/s2 (gravity)
       let H     = influent_H; //m (head)
@@ -57,18 +65,19 @@ function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TS
       */
     },//kW
   };
-  let pumping_power_influent = Pumping.influent();  //kW
+  let pumping_power_influent = Pumping.influent/24; //kW
   let pumping_power_external = Pumping.external/24; //kW
   let pumping_power_internal = Pumping.internal/24; //kW
   let pumping_power_wastage  = Pumping.wastage/24;  //kW
   let pumping_power          = pumping_power_influent + pumping_power_external + pumping_power_internal + pumping_power_wastage; //kW
 
   //4. DEWATERING power
-  const dewatering_factor = 20; //kWh/tDM (tone dry matter)
   let dewatering_power = P_X_TSS/1000*dewatering_factor/24; //kW
 
   //5. OTHER power: regression equations from lcorominas
-  let other_power = (function(){
+  let other_power=(function(){
+    return 0; //provisional (waiting for more accurate model) TODO
+
     if(is_PST){
       return 0.0124*Q + 337.77; //kWh/d
     }else{
@@ -81,7 +90,6 @@ function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TS
 
   //return value
   let rv={
-    'SAE':                    {value:SAE,                    unit:"kgO2/kWh", descr:"kg O2 dosed with 1 kWh of energy (constant value)"},
     'aeration_power':         {value:aeration_power,         unit:"kW",       descr:"Power needed for aeration (=OTRf/SAE)"},
     'mixing_power':           {value:mixing_power,           unit:"kW",       descr:"Power needed for anoxic mixing"},
     'pumping_power_influent': {value:pumping_power_influent, unit:"kW",       descr:"Power needed for pumping influent"},
@@ -90,7 +98,7 @@ function energy_consumption(Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TS
     'pumping_power_wastage':  {value:pumping_power_wastage,  unit:"kW",       descr:"Power needed for pumping (wastage recirculation)"},
     'pumping_power':          {value:pumping_power,          unit:"kW",       descr:"Power needed for pumping (ext+int+was)"},
     'dewatering_power':       {value:dewatering_power,       unit:"kW",       descr:"Power needed for dewatering"},
-    'other_power':            {value:other_power,            unit:"kW",       descr:"Power needed for 'other' (20% of total)"},
+    'other_power':            {value:other_power,            unit:"kW (model pending)", descr:"Power needed for 'other' (20% of total)"},
     'total_power':            {value:total_power,            unit:"kW",       descr:"Total power needed (aer+mix+pum+dew+other)"},
     'total_daily_energy':     {value:total_power*24,         unit:"kWh/d",    descr:"Total daily energy needed"},
     'total_energy_per_m3':    {value:total_power*24/Q||0,    unit:"kWh/m3",   descr:"Total energy needed per m3"},
@@ -105,13 +113,13 @@ try{module.exports=energy_consumption}catch(e){}
 (function(){
   return;
   console.log(
-    //syntax---------f(Q      Qwas RAS  OTRf Anoxic_mixing_energy IR P_X_TSS influent_H is_PST V_nox)
-    energy_consumption(22700, 180, 0.6, 180, 5,                   3, 1800,   10,        true,  1000)
+    //syntax---------f(    Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox, ...
+    energy_consumption(22700,  180, 0.6,  180,                    5,  3,    1800,         10,   true,  1000,
+    //syntax---------- SAE, PE_Qinf, PE_Qr, PE_Qint, PE_Qw, dewatering_factor)
+                         4,   0.100, 0.008,   0.004, 0.050,                20)
   );
   /*
-    test result
-    {
-      SAE:                    {value: 4,                   unit:'kg_O2/kWh', descr:'kg O2 that can be aerated with 1 kWh of energy'},
+    test result {
       aeration_power:         {value: 45,                  unit:'kW',        descr:'Power needed for aeration (=OTRf/SAE)'},
       mixing_power:           {value: 5,                   unit:'kW',        descr:'Power needed for anoxic mixing'},
       pumping_power_influent: {value: 25.773958333333333,  unit:'kW',        descr:'Power needed for pumping influent'},
