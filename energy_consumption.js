@@ -1,5 +1,4 @@
 /*ENERGY CONSUMPTION module*/
-//function from ecoinvent project
 
 function energy_consumption(
   Q, Qwas, RAS, OTRf, Anoxic_mixing_energy, IR, P_X_TSS, influent_H, is_PST, V_nox,
@@ -16,7 +15,7 @@ function energy_consumption(
     P_X_TSS              | kg/d       |          1800 | Total solids production per day
     influent_H           | m          |            10 | Influent pumping water lift height and friction head in m
     is_PST               | boolean    |          true | Do you have primary settler?
-    V_nox                | m3         |          1000 | Anoxic volume (calculated through numeric loop)
+    V_nox                | m3         |          1000 | Anoxic volume
     SAE                  | kgO2/kWh   |             4 | kg of O2 dosed per kWh of energy consumed
     PE_Qinf              | kWh/m3     |         0.100 | influent factor
     PE_Qr                | kWh/m3     |         0.008 | external recirculation factor
@@ -83,7 +82,7 @@ function energy_consumption(
     }else{
       return 0.0165*Q + 337.59; //kWh/d
     }
-  })()/24; //convert to kW dividing by 24
+  })()/24; //convert from kWh/d to kW dividing by 24
 
   //6. TOTAL power
   let total_power = aeration_power + mixing_power + pumping_power + dewatering_power + other_power;
